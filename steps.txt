@@ -1,0 +1,42 @@
+vi /etc/docker/daemon.json
+
+{
+  "exec-opts": ["native.cgroupdriver=systemd"]
+}
+
+
+
+
+vi /etc/crictl.yaml
+
+runtime-endpoint: "unix:///run/containerd/containerd.sock"
+timeout: 0
+debug: false
+
+
+crictl ps
+
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+
+kubeadm token create --print-join-command  #run from master
+
+#run on workers
+kubeadm join 192.168.47.152:6443 --token b0uljm.25fot1ofp1yhzzoa \
+        --discovery-token-ca-cert-hash sha256:b26406d4dbbdb60160dc1843c5e66d83c6a0a3bd23d52dbfef7196fb964e26a9
